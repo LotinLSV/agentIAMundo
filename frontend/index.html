@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Agente de Conhecimento</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:40px;
+}
+
+button{
+margin:5px;
+padding:10px;
+}
+
+input,textarea,select{
+width:300px;
+margin:5px;
+padding:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Sistema de Conhecimento</h2>
+
+<button onclick="mostrarCadastro()">Cadastrar Base</button>
+<button onclick="mostrarBusca()">Realizar Busca</button>
+
+
+<div id="cadastro" style="display:none">
+
+<h3>Cadastrar Informação</h3>
+
+<select id="modelo">
+
+<option>Canvas</option>
+<option>Lições aprendidas</option>
+<option>Riscos</option>
+
+</select>
+
+<br>
+
+<input id="tipo" placeholder="Tipo">
+
+<br>
+
+<textarea id="descricao" placeholder="Descrição"></textarea>
+
+<br>
+
+<button onclick="salvar()">Salvar</button>
+
+</div>
+
+
+<div id="busca" style="display:none">
+
+<h3>Realizar Busca</h3>
+
+<input id="pergunta" placeholder="Digite sua pergunta">
+
+<br>
+
+<button onclick="buscar()">Perguntar</button>
+
+<p id="resposta"></p>
+
+</div>
+
+
+<script>
+
+function mostrarCadastro(){
+
+document.getElementById("cadastro").style.display="block"
+document.getElementById("busca").style.display="none"
+
+}
+
+function mostrarBusca(){
+
+document.getElementById("busca").style.display="block"
+document.getElementById("cadastro").style.display="none"
+
+}
+
+async function salvar(){
+
+let modelo = document.getElementById("modelo").value
+let tipo = document.getElementById("tipo").value
+let descricao = document.getElementById("descricao").value
+
+await fetch("/api/cadastrar",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+modelo,
+tipo,
+descricao
+})
+
+})
+
+alert("Salvo com sucesso")
+
+}
+
+async function buscar(){
+
+let pergunta = document.getElementById("pergunta").value
+
+let res = await fetch("/api/buscar",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+pergunta
+})
+
+})
+
+let data = await res.json()
+
+document.getElementById("resposta").innerText = data.resposta
+
+}
+
+</script>
+
+</body>
+
+</html>
