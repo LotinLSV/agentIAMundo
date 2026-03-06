@@ -1,43 +1,36 @@
 import os
+from dotenv import load_dotenv
 from openai import OpenAI
 
+load_dotenv()
+
 client = OpenAI(
-    api_key=os.environ["OPENAI_API_KEY"]
+    api_key=os.getenv("OPENAI_API_KEY")
 )
 
-def responder(pergunta,dados):
 
-    base = ""
+def responder(pergunta, dados):
 
-    for d in dados:
+    contexto = ""
 
-        base += f"""
-        Modelo: {d[0]}
-        Tipo: {d[1]}
-        Descrição: {d[2]}
-        """
+    for modelo, tipo, descricao in dados:
+        contexto += f"Modelo: {modelo}\nTipo: {tipo}\nDescrição: {descricao}\n\n"
 
     prompt = f"""
+    Use as informações abaixo para responder a pergunta.
 
-    Você é um assistente que responde perguntas usando apenas a base abaixo.
+    Base de conhecimento:
+    {contexto}
 
-    BASE DE CONHECIMENTO
-    {base}
-
-    PERGUNTA
+    Pergunta:
     {pergunta}
-
-    Responda usando apenas as informações da base.
     """
 
-    resposta = client.chat.completions.create(
-
-        model="gpt-4.1",
-
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         messages=[
-            {"role":"user","content":prompt}
+            {"role": "user", "content": prompt}
         ]
-
     )
 
-    return resposta.choices[0].message.content
+    return response.choices[0].message.content

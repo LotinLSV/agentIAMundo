@@ -1,41 +1,41 @@
+import json
 import os
-import psycopg2
+from pathlib import Path
 
-conn = psycopg2.connect(
-    host=os.environ["DB_HOST"],
-    database=os.environ["DB_NAME"],
-    user=os.environ["DB_USER"],
-    password=os.environ["DB_PASSWORD"]
-)
+# caminho do arquivo JSON
+BASE_DIR = Path(__file__).resolve().parents[1]
+ARQUIVO_JSON = BASE_DIR / "dados.json"
 
 
-def salvar_dado(modelo,tipo,descricao):
+def criar_tabela():
+    """
+    Apenas cria o arquivo JSON se ele não existir
+    """
+    if not ARQUIVO_JSON.exists():
+        with open(ARQUIVO_JSON, "w", encoding="utf-8") as f:
+            json.dump([], f)
 
-    cur = conn.cursor()
 
-    cur.execute(
-        """
-        INSERT INTO conhecimento
-        (modelo,tipo,descricao)
-        VALUES (%s,%s,%s)
-        """,
-        (modelo,tipo,descricao)
-    )
+def salvar_dado(modelo, tipo, descricao):
 
-    conn.commit()
-    cur.close()
+    with open(ARQUIVO_JSON, "r", encoding="utf-8") as f:
+        dados = json.load(f)
+
+    novo = {
+        "modelo": modelo,
+        "tipo": tipo,
+        "descricao": descricao
+    }
+
+    dados.append(novo)
+
+    with open(ARQUIVO_JSON, "w", encoding="utf-8") as f:
+        json.dump(dados, f, indent=4, ensure_ascii=False)
 
 
 def buscar_dados():
 
-    cur = conn.cursor()
-
-    cur.execute(
-        "SELECT modelo,tipo,descricao FROM conhecimento"
-    )
-
-    dados = cur.fetchall()
-
-    cur.close()
+    with open(ARQUIVO_JSON, "r", encoding="utf-8") as f:
+        dados = json.load(f)
 
     return dados
